@@ -2,6 +2,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 namespace asteroids
 {
@@ -13,29 +14,68 @@ namespace asteroids
         public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
         {
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            gameWindowSettings.UpdateFrequency = 10d;
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         }
-
         int VertexBufferObject;
+
         int VertexArrayObject;
 
-        private readonly float[] _vertices1 =
+        int ElementBufferObject;
+
+        int rotationLoc;
+
+        Matrix4 rotation;
+
+
+        protected override void OnLoad()
         {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f,  0.5f, 0.0f
+            base.OnLoad();
+
+            GL.ClearColor(0.2f, 0.3f, 0.3f, 0.2f);
+
+            int vao = genVAO(shipVerices);
+
+            rotation = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(0.01f));
+
+
+
+            
+
+
+
+
+            shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
+
+
+            shader.Use();
+
+            GL.EnableVertexAttribArray(0);
+
+            //Code goes here
+        }
+
+        private readonly float[] shipVerices =
+        {
+            0.0f, -0.3f, 0.0f,
+            0.4f, -0.5f, 0.0f,
+            0.0f, 0.5f, 0.0f,
+            -0.4f,  -0.5f, 0.0f
+
         };
 
-        private readonly float[] _vertices2 =
+
+        private readonly int[] shipIndices = 
         {
-            -0.1f, -0.1f, 0.0f,
-            0.1f, -0.1f, 0.0f,
-            0.0f,  0.1f, 0.0f
+            0, 1, 2,
+            2, 3, 0
         };
+
 
         // This function runs on every update frame.
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+
             // Check if the Escape button is currently being pressed.
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {
@@ -46,10 +86,9 @@ namespace asteroids
             base.OnUpdateFrame(e);
         }
 
-        private void genVAO(float[] _vertices)
+        private int genVAO(float[] _vertices)
         {
 
-            VertexArrayObject = GL.GenVertexArray();
 
             VertexBufferObject = GL.GenBuffer();
 
@@ -57,34 +96,24 @@ namespace asteroids
 
             GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
 
+            VertexArrayObject = GL.GenVertexArray();
+
             GL.BindVertexArray(VertexArrayObject);
 
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 
-        }
-
-        protected override void OnLoad()
-        {
-            base.OnLoad();
-
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 0.2f);
-
-            genVAO(_vertices1);
-            genVAO(_vertices2);
-
-            
-
-
-
-
-            shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
-
-            shader.Use();
-
             GL.EnableVertexAttribArray(0);
 
-            //Code goes here
+            ElementBufferObject = GL.GenBuffer();
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+
+            GL.BufferData(BufferTarget.ElementArrayBuffer, shipIndices.Length * sizeof(uint), shipIndices, BufferUsageHint.StaticDraw);
+
+            return 1;
+
         }
+
 
         private Shader shader;
 
@@ -97,9 +126,13 @@ namespace asteroids
             shader.Use();
 
 
-            GL.BindVertexArray(VertexArrayObject);
+            rotationLoc = GL.GetUniformLocation(shader.getHandle(), "transform");
+            GL.UniformMatrix4(rotationLoc, false, ref rotation);
 
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            GL.BindVertexArray(VertexArrayObject);
+            GL.DrawElements(PrimitiveType.Triangles, shipIndices.Length, DrawElementsType.UnsignedInt, 0);
+
+            rotation = rotation * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(0.01f));
 
 
 
@@ -114,14 +147,18 @@ namespace asteroids
     {
         private int Handle;
 
+        public int getHandle(){
+            return Handle;
+        }
+
         public Shader(string vertexPath, string fragmentPath)
         {
             string VertexShaderSource = File.ReadAllText(vertexPath);
             string FragmentShaderSource = File.ReadAllText(fragmentPath);
             string GeometryShaderSource = File.ReadAllText("shaders/shader.geo");
 
-            var GeometryShader = GL.CreateShader(ShaderType.GeometryShader);
-            GL.ShaderSource(GeometryShader, GeometryShaderSource);
+            // var GeometryShader = GL.CreateShader(ShaderType.GeometryShader);
+            // GL.ShaderSource(GeometryShader, GeometryShaderSource);
 
 
             var VertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -132,18 +169,18 @@ namespace asteroids
 
 
 
-            GL.CompileShader(GeometryShader);
+            // GL.CompileShader(GeometryShader);
 
-            GL.GetShader(GeometryShader, ShaderParameter.CompileStatus, out int success);
-            if (success == 0)
-            {
-                string infoLog = GL.GetShaderInfoLog(GeometryShader);
-                Console.WriteLine(infoLog);
-            }
+            // GL.GetShader(GeometryShader, ShaderParameter.CompileStatus, out int success);
+            // if (success == 0)
+            // {
+            //     string infoLog = GL.GetShaderInfoLog(GeometryShader);
+            //     Console.WriteLine(infoLog);
+            // }
 
             GL.CompileShader(VertexShader);
 
-            GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out success);
+            GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int success);
             if (success == 0)
             {
                 string infoLog = GL.GetShaderInfoLog(VertexShader);
@@ -163,7 +200,7 @@ namespace asteroids
 
             GL.AttachShader(Handle, VertexShader);
             GL.AttachShader(Handle, FragmentShader);
-            GL.AttachShader(Handle, GeometryShader);
+            // GL.AttachShader(Handle, GeometryShader);
 
 
             GL.LinkProgram(Handle);
@@ -177,10 +214,10 @@ namespace asteroids
 
             GL.DetachShader(Handle, VertexShader);
             GL.DetachShader(Handle, FragmentShader);
-            GL.DetachShader(Handle, GeometryShader);
+            // GL.DetachShader(Handle, GeometryShader);
 
             GL.DeleteShader(FragmentShader);
-            GL.DeleteShader(GeometryShader);
+            // GL.DeleteShader(GeometryShader);
 
             GL.DeleteShader(VertexShader);
 
