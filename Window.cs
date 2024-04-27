@@ -4,6 +4,8 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
+
+
 namespace asteroids
 {
     // This is where all OpenGL code will be written.
@@ -17,43 +19,29 @@ namespace asteroids
             gameWindowSettings.UpdateFrequency = 10d;
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         }
-        int VertexBufferObject;
 
-        int VertexArrayObject;
-
-        int ElementBufferObject;
-
-        int rotationLoc;
-
-        Matrix4 rotation;
 
 
         protected override void OnLoad()
         {
             base.OnLoad();
+            ship = new Entity(shipVerices, shipIndices);
+            ship.pos.X = .25f;
 
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 0.2f);
+            ship2 = new Entity(shipVerices, shipIndices);
 
-            int vao = genVAO(shipVerices);
-
-            rotation = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(0.01f));
-
-
-
-            
+            ship2.pos.X = -.25f;
 
 
 
-
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 1f);
             shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
-
-
-            shader.Use();
-
             GL.EnableVertexAttribArray(0);
 
-            //Code goes here
         }
+
+
+
 
         private readonly float[] shipVerices =
         {
@@ -71,6 +59,11 @@ namespace asteroids
             2, 3, 0
         };
 
+        Entity ship;
+        Entity ship2;
+
+
+
 
         // This function runs on every update frame.
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -86,33 +79,6 @@ namespace asteroids
             base.OnUpdateFrame(e);
         }
 
-        private int genVAO(float[] _vertices)
-        {
-
-
-            VertexBufferObject = GL.GenBuffer();
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-
-            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
-
-            VertexArrayObject = GL.GenVertexArray();
-
-            GL.BindVertexArray(VertexArrayObject);
-
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-
-            GL.EnableVertexAttribArray(0);
-
-            ElementBufferObject = GL.GenBuffer();
-
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-
-            GL.BufferData(BufferTarget.ElementArrayBuffer, shipIndices.Length * sizeof(uint), shipIndices, BufferUsageHint.StaticDraw);
-
-            return 1;
-
-        }
 
 
         private Shader shader;
@@ -123,20 +89,11 @@ namespace asteroids
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            shader.Use();
 
+            ship.draw(shader);
+            ship2.draw(shader);
 
-            rotationLoc = GL.GetUniformLocation(shader.getHandle(), "transform");
-            GL.UniformMatrix4(rotationLoc, false, ref rotation);
-
-            GL.BindVertexArray(VertexArrayObject);
-            GL.DrawElements(PrimitiveType.Triangles, shipIndices.Length, DrawElementsType.UnsignedInt, 0);
-
-            rotation = rotation * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(0.01f));
-
-
-
-            //Code goes here.
+            
 
 
             SwapBuffers();
@@ -258,4 +215,6 @@ namespace asteroids
         }
     }
 }
+
+
 
