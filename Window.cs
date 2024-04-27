@@ -114,8 +114,8 @@ namespace asteroids
             string FragmentShaderSource = File.ReadAllText(fragmentPath);
             string GeometryShaderSource = File.ReadAllText("shaders/shader.geo");
 
-            // var GeometryShader = GL.CreateShader(ShaderType.GeometryShader);
-            // GL.ShaderSource(GeometryShader, GeometryShaderSource);
+            var GeometryShader = GL.CreateShader(ShaderType.GeometryShader);
+            GL.ShaderSource(GeometryShader, GeometryShaderSource);
 
 
             var VertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -126,18 +126,18 @@ namespace asteroids
 
 
 
-            // GL.CompileShader(GeometryShader);
+            GL.CompileShader(GeometryShader);
 
-            // GL.GetShader(GeometryShader, ShaderParameter.CompileStatus, out int success);
-            // if (success == 0)
-            // {
-            //     string infoLog = GL.GetShaderInfoLog(GeometryShader);
-            //     Console.WriteLine(infoLog);
-            // }
+            GL.GetShader(GeometryShader, ShaderParameter.CompileStatus, out int success);
+            if (success == 0)
+            {
+                string infoLog = GL.GetShaderInfoLog(GeometryShader);
+                Console.WriteLine(infoLog);
+            }
 
             GL.CompileShader(VertexShader);
 
-            GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int success);
+            GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out success);
             if (success == 0)
             {
                 string infoLog = GL.GetShaderInfoLog(VertexShader);
@@ -157,7 +157,7 @@ namespace asteroids
 
             GL.AttachShader(Handle, VertexShader);
             GL.AttachShader(Handle, FragmentShader);
-            // GL.AttachShader(Handle, GeometryShader);
+            GL.AttachShader(Handle, GeometryShader);
 
 
             GL.LinkProgram(Handle);
@@ -171,10 +171,10 @@ namespace asteroids
 
             GL.DetachShader(Handle, VertexShader);
             GL.DetachShader(Handle, FragmentShader);
-            // GL.DetachShader(Handle, GeometryShader);
+            GL.DetachShader(Handle, GeometryShader);
 
             GL.DeleteShader(FragmentShader);
-            // GL.DeleteShader(GeometryShader);
+            GL.DeleteShader(GeometryShader);
 
             GL.DeleteShader(VertexShader);
 
