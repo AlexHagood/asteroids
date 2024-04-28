@@ -22,9 +22,9 @@ public class Asteroid : Entity
     {
         float[] tempIndices = new float[(chunks + 1) * 3];
         //Establish center point
-        tempIndices[0] = 0.0f;
-        tempIndices[1] = 0.0f;
-        tempIndices[2] = 0.0f;
+        // tempIndices[0] = 0.0f;
+        // tempIndices[1] = 0.0f;
+        // tempIndices[2] = 0.0f;
 
 
         for (int i = 0; i < chunks; i ++)
@@ -33,8 +33,8 @@ public class Asteroid : Entity
 
 
             double angle = 2 * Math.PI * i / chunks;
-            angle *= genMod(.1f);
-            int index = (i + 1) * 3;
+            angle *= genMod(0.05f);
+            int index = (i) * 3; // (i + 1) with center
 
             tempIndices[index] = rad * (float)Math.Cos(angle);
             tempIndices[index + 1] = rad * (float)Math.Sin(angle);
@@ -60,15 +60,25 @@ public class Asteroid : Entity
         int[] tempIndices = new int[chunks * 3];
         int currentVert = 1;
 
-        for (int i = 0; i < chunks * 3; i += 3)
-        {
-            tempIndices[i] = 0;
-            tempIndices[i+1] = currentVert;
-            currentVert += 1;
-            if (currentVert == chunks + 1) currentVert = 1;
-            tempIndices[i+2] = currentVert;
+        // for (int i = 0; i < chunks * 3; i += 3)
+        // {
+        //     tempIndices[i] = 0;
+        //     tempIndices[i+1] = currentVert;
+        //     currentVert += 1;
+        //     if (currentVert == chunks + 1) currentVert = 1;
+        //     tempIndices[i+2] = currentVert;
 
+        // }
+
+        for (int i = 0; i < chunks; i++)
+        {
+            tempIndices[i] = i;
         }
+
+        //tempIndices[chunks - 1] = 1;
+
+        Console.WriteLine(tempIndices);
+
 
 
 

@@ -29,6 +29,8 @@ namespace asteroids
 
             scene = new List<Entity>();
 
+            shader = new Shader("./shaders/polygon/shader.vert", "./shaders/polygon/shader.frag");
+
 
 
 
@@ -37,15 +39,22 @@ namespace asteroids
             scene[0].pos.X = .25f;
 
             scene.Add(new Ship());
-            scene.Add(new Asteroid(10));
-
-
             scene[1].pos.X = -.25f;
 
 
 
+            scene.Add(new Ship());
+            scene[2].pos.Y = .35f;
+
+
+            scene.Add(new Asteroid(10));
+
+
+
+
+
+
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1f);
-            shader = new Shader("shaders/shader.vert", "shaders/shader.frag");
             GL.EnableVertexAttribArray(0);
 
         }
@@ -53,23 +62,6 @@ namespace asteroids
 
 
         List<Entity> scene;
-
-        private readonly float[] shipVerices =
-        {
-            0.0f, -0.3f, 0.0f,
-            0.4f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f,
-            -0.4f,  -0.5f, 0.0f
-
-        };
-
-
-        private readonly int[] shipIndices = 
-        {
-            0, 1, 2,
-            2, 3, 0
-        };
-
 
 
 
@@ -114,119 +106,7 @@ namespace asteroids
         }
 
     }
-    public class Shader
-    {
-        private int Handle;
-
-        public int getHandle(){
-            return Handle;
-        }
-
-        public Shader(string vertexPath, string fragmentPath)
-        {
-            string VertexShaderSource = File.ReadAllText(vertexPath);
-            string FragmentShaderSource = File.ReadAllText(fragmentPath);
-            string GeometryShaderSource = File.ReadAllText("shaders/shader.geo");
-
-            var GeometryShader = GL.CreateShader(ShaderType.GeometryShader);
-            GL.ShaderSource(GeometryShader, GeometryShaderSource);
-
-
-            var VertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(VertexShader, VertexShaderSource);
-
-            var FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(FragmentShader, FragmentShaderSource);
-
-
-
-            GL.CompileShader(GeometryShader);
-
-            GL.GetShader(GeometryShader, ShaderParameter.CompileStatus, out int success);
-            if (success == 0)
-            {
-                string infoLog = GL.GetShaderInfoLog(GeometryShader);
-                Console.WriteLine(infoLog);
-            }
-
-            GL.CompileShader(VertexShader);
-
-            GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out success);
-            if (success == 0)
-            {
-                string infoLog = GL.GetShaderInfoLog(VertexShader);
-                Console.WriteLine(infoLog);
-            }
-
-            GL.CompileShader(FragmentShader);
-
-            GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out success);
-            if (success == 0)
-            {
-                string infoLog = GL.GetShaderInfoLog(FragmentShader);
-                Console.WriteLine(infoLog);
-            }
-
-            Handle = GL.CreateProgram();
-
-            GL.AttachShader(Handle, VertexShader);
-            GL.AttachShader(Handle, FragmentShader);
-           // GL.AttachShader(Handle, GeometryShader);
-
-
-            GL.LinkProgram(Handle);
-
-            GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out success);
-            if (success == 0)
-            {
-                string infoLog = GL.GetProgramInfoLog(Handle);
-                Console.WriteLine(infoLog);
-            }
-
-            GL.DetachShader(Handle, VertexShader);
-            GL.DetachShader(Handle, FragmentShader);
-            GL.DetachShader(Handle, GeometryShader);
-
-            GL.DeleteShader(FragmentShader);
-            GL.DeleteShader(GeometryShader);
-            GL.DeleteShader(VertexShader);
-
-        }
-
-
-
-        public void Use()
-        {
-            GL.UseProgram(Handle);
-        }
-
-        private bool disposedValue = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                GL.DeleteProgram(Handle);
-
-                disposedValue = true;
-            }
-        }
-
-        ~Shader()
-        {
-            if (disposedValue == false)
-            {
-                Console.WriteLine("GPU Resource leak! Did you forget to call Dispose()?");
-            }
-        }
-
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-    }
+    
 }
 
 

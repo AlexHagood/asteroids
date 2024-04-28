@@ -59,7 +59,7 @@ public abstract class Entity()
 
     public void draw(Shader shader)
     {
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+        //GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
         GL.BindVertexArray(VertexArrayObject);
 
 
@@ -75,7 +75,7 @@ public abstract class Entity()
         
         GL.UniformMatrix4(transLoc, false, ref trans);
 
-        GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(PrimitiveType.LineStrip, indices.Length, DrawElementsType.UnsignedInt, 0);
 
 
 
