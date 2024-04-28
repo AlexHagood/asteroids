@@ -25,6 +25,7 @@ namespace asteroids
         protected override void OnLoad()
         {
             base.OnLoad();
+
             ship = new Entity(shipVerices, shipIndices);
             ship.pos.X = .25f;
 
@@ -175,7 +176,6 @@ namespace asteroids
 
             GL.DeleteShader(FragmentShader);
             GL.DeleteShader(GeometryShader);
-
             GL.DeleteShader(VertexShader);
 
         }

@@ -26,6 +26,8 @@ public class Entity()
 
         this.indices = new int[inIndices.Length];
         Array.Copy(inIndices, this.indices, indices.Length);
+
+        buildBuffer();
     }
 
 
@@ -83,6 +85,8 @@ public class Entity()
         GL.UniformMatrix4(transLoc, false, ref trans);
 
         GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+
+
 
 
 
