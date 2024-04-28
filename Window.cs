@@ -22,16 +22,25 @@ namespace asteroids
 
 
 
+
         protected override void OnLoad()
         {
             base.OnLoad();
 
-            ship = new Entity(shipVerices, shipIndices);
-            ship.pos.X = .25f;
+            scene = new List<Entity>();
 
-            ship2 = new Entity(shipVerices, shipIndices);
 
-            ship2.pos.X = -.25f;
+
+
+
+            scene.Add(new Entity(shipVerices, shipIndices));
+            scene[0].pos.X = .25f;
+
+            scene.Add(new Entity(shipVerices, shipIndices));
+            scene.Add(new Asteroid(10));
+
+
+            scene[1].pos.X = -.25f;
 
 
 
@@ -43,6 +52,7 @@ namespace asteroids
 
 
 
+        List<Entity> scene;
 
         private readonly float[] shipVerices =
         {
@@ -60,8 +70,6 @@ namespace asteroids
             2, 3, 0
         };
 
-        Entity ship;
-        Entity ship2;
 
 
 
@@ -90,9 +98,14 @@ namespace asteroids
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
+            scene[0].orientation += .01f;
+            scene[1].orientation -= .01f;
 
-            ship.draw(shader);
-            ship2.draw(shader);
+
+            foreach (Entity ent in scene){
+                ent.draw(shader);
+            }
+
 
             
 
@@ -158,7 +171,7 @@ namespace asteroids
 
             GL.AttachShader(Handle, VertexShader);
             GL.AttachShader(Handle, FragmentShader);
-            GL.AttachShader(Handle, GeometryShader);
+           // GL.AttachShader(Handle, GeometryShader);
 
 
             GL.LinkProgram(Handle);
