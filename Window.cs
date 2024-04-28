@@ -3,6 +3,9 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System.Diagnostics;
+
+
 
 
 
@@ -19,6 +22,9 @@ namespace asteroids
             gameWindowSettings.UpdateFrequency = 10d;
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         }
+
+
+        private Stopwatch timer = new Stopwatch();
 
 
 
@@ -50,6 +56,7 @@ namespace asteroids
             scene.Add(new Asteroid(10));
 
 
+            player = (Ship)scene[2];
 
 
 
@@ -57,11 +64,17 @@ namespace asteroids
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1f);
             GL.EnableVertexAttribArray(0);
 
+            timer.Start();
+
+
         }
 
 
 
         List<Entity> scene;
+        Ship player;
+
+        double dT;
 
 
 
@@ -70,12 +83,19 @@ namespace asteroids
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
 
+
             // Check if the Escape button is currently being pressed.
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {
                 // If it is, close the window.
                 Close();
             }
+
+            player.control(this.KeyboardState, (float)dT);
+
+
+
+
 
             base.OnUpdateFrame(e);
         }
@@ -86,6 +106,11 @@ namespace asteroids
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+
+            dT = timer.Elapsed.TotalSeconds;
+            timer.Restart();
+            dT = Math.Min(dT, 0.1);
+            
             base.OnRenderFrame(e);
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
@@ -103,6 +128,8 @@ namespace asteroids
 
 
             SwapBuffers();
+
+            
         }
 
     }

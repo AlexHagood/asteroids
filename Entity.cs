@@ -27,6 +27,13 @@ public abstract class Entity()
 
     //Normalized?? idk yet
     public Vector2 pos; 
+    public Vector2 speed;
+    public Vector2 accel; 
+
+
+    public float aSpeed = .00001f;
+
+
 
     // in radians
     public float orientation;
