@@ -120,6 +120,10 @@ namespace asteroids
 
 
             foreach (Entity ent in scene){
+                
+                if (Math.Abs(ent.pos.X) > 1f) ent.pos.X = Math.Sign(ent.pos.X) * -1;
+                if (Math.Abs(ent.pos.Y) > 1f) ent.pos.Y = Math.Sign(ent.pos.Y) * -1;
+
                 ent.draw(shader);
             }
 
