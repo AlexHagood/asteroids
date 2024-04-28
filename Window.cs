@@ -33,10 +33,10 @@ namespace asteroids
 
 
 
-            scene.Add(new Entity(shipVerices, shipIndices));
+            scene.Add(new Ship());
             scene[0].pos.X = .25f;
 
-            scene.Add(new Entity(shipVerices, shipIndices));
+            scene.Add(new Ship());
             scene.Add(new Asteroid(10));
 
 

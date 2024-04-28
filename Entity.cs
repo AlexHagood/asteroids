@@ -3,33 +3,24 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 
-public class Entity()
+public abstract class Entity()
 {
 
 
     //Graphics of our entities
-    private readonly float[] vertices;
+    private float[] vertices;
 
-    private readonly int[] indices;
+    private int[] indices;
 
     public float scale;
-
-
-
 
     public Entity(float[] inVertices, int[] inIndices) : this()
     {
         scale = .1f;
-
-        this.vertices = new float[inVertices.Length];
-        Array.Copy(inVertices, this.vertices, vertices.Length);
-
-        this.indices = new int[inIndices.Length];
-        Array.Copy(inIndices, this.indices, indices.Length);
-
+        vertices = inVertices;
+        indices = inIndices;
         buildBuffer();
     }
-
 
 
 
