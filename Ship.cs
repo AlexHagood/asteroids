@@ -13,7 +13,7 @@ public class Ship : Entity
         new int[]
         {
             0, 1, 2,
-            2, 3, 0
+            3, 0
         })
     {
         scale = .1f;
