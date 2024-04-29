@@ -1,0 +1,372 @@
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using System.Diagnostics;
+
+
+using asteroids;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+
+public abstract class Entity()
+{
+
+
+    //Graphics of our entities
+    public Display display;
+
+    public float scale;
+
+    public Entity(float[] inVertices, int[] inIndices) : this()
+    {
+        scale = .1f;
+        display = new Display(inVertices, inIndices);
+    }
+
+
+
+
+    //Normalized?? idk yet
+    public Vector2 pos; 
+    public Vector2 speed;
+    public Vector2 accel; 
+
+
+    public float aSpeed = .00001f;
+
+
+
+    // in radians
+    public float orientation;
+
+        // References to our buffers
+    private int VertexBufferObject;
+    private int VertexArrayObject;
+    private int ElementBufferObject;
+
+
+    public void draw()
+    {
+        Matrix4 orientMatrix = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(orientation));
+        Matrix4 translateMatrix = Matrix4.CreateTranslation(pos.X, pos.Y, 0f);
+        Matrix4 scaleMatrix = Matrix4.CreateScale(scale);
+        Matrix4 trans = scaleMatrix * orientMatrix * translateMatrix;
+        display.draw(trans);
+    }
+    
+}
+
+
+namespace asteroids
+{
+    // This is where all OpenGL code will be written.
+    // OpenToolkit allows for several functions to be overriden to extend functionality; this is how we'll be writing code.
+    public class Window : GameWindow
+    {
+        // A simple constructor to let us set properties like window size, title, FPS, etc. on the window.
+        public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
+            : base(gameWindowSettings, nativeWindowSettings)
+        {
+            gameWindowSettings.UpdateFrequency = 10d;
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        }
+
+
+        private Stopwatch timer = new Stopwatch();
+
+
+
+        Number test;
+
+        protected override void OnLoad()
+        {
+            base.OnLoad();
+
+            scene = new List<Entity>();
+
+            shader = new Shader("./shaders/polygon/shader.vert", "./shaders/polygon/shader.frag");
+
+
+
+            test = new Number(1234567, shader);
+
+
+
+
+
+            scene.Add(new Ship());
+            scene[0].pos.X = .25f;
+
+            scene.Add(new Ship());
+            scene[1].pos.X = -.25f;
+
+
+
+            scene.Add(new Ship());
+            scene[2].pos.Y = .35f;
+
+
+            scene.Add(new Asteroid(10));
+
+            foreach (Entity ent in scene)
+            {
+                ent.display.shader = shader;
+            }
+
+
+            player = (Ship)scene[2];
+
+
+
+
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 1f);
+            GL.EnableVertexAttribArray(0);
+
+            timer.Start();
+
+
+        }
+
+
+
+        List<Entity> scene;
+        Ship player;
+
+        double dT;
+
+
+
+
+        // This function runs on every update frame.
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+
+
+            // Check if the Escape button is currently being pressed.
+            if (KeyboardState.IsKeyDown(Keys.Escape))
+            {
+                // If it is, close the window.
+                Close();
+            }
+
+            player.control(this.KeyboardState, (float)dT);
+
+
+
+
+
+            base.OnUpdateFrame(e);
+        }
+
+
+
+        private Shader shader;
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+
+            dT = timer.Elapsed.TotalSeconds;
+            timer.Restart();
+            dT = Math.Min(dT, 0.1);
+            
+            base.OnRenderFrame(e);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            scene[0].orientation += .01f;
+            scene[1].orientation -= .01f;
+
+            test.draw();
+
+
+            foreach (Entity ent in scene){
+                
+                if (Math.Abs(ent.pos.X) > 1f) ent.pos.X = Math.Sign(ent.pos.X) * -1;
+                if (Math.Abs(ent.pos.Y) > 1f) ent.pos.Y = Math.Sign(ent.pos.Y) * -1;
+
+                ent.draw();
+            }
+
+
+            
+
+
+            SwapBuffers();
+
+            
+        }
+
+    }
+    
+}
+
+
+
+using System.Numerics;
+using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL;
+
+
+public class Display {
+    private int VertexBufferObject;
+    private int VertexArrayObject;
+    private int ElementBufferObject;
+
+    private float[] vertices;
+
+    private int[] indices;
+
+    public Shader shader;
+
+    public Display(float[] inVertices, int[] inIndices){
+        vertices = inVertices;
+        indices = inIndices;
+        buildBuffer();
+
+    }
+
+
+    public void buildBuffer()
+    {
+
+
+
+            VertexBufferObject = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+
+            VertexArrayObject = GL.GenVertexArray();
+            GL.BindVertexArray(VertexArrayObject);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
+
+            ElementBufferObject = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+
+    }
+
+    public void draw(Matrix4 trans)
+    {
+        //GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+        GL.BindVertexArray(VertexArrayObject);
+        shader.Use();
+
+        int transLoc = GL.GetUniformLocation(shader.getHandle(), "trans");
+        
+        GL.UniformMatrix4(transLoc, false, ref trans);
+        GL.DrawElements(PrimitiveType.LineStrip, indices.Length, DrawElementsType.UnsignedInt, 0);
+
+    }
+
+    public void drawLine(Matrix4 trans)
+    {
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+        GL.BindVertexArray(VertexArrayObject);
+        shader.Use();
+
+        int transLoc = GL.GetUniformLocation(shader.getHandle(), "trans");
+        
+        GL.UniformMatrix4(transLoc, false, ref trans);
+        GL.DrawElements(PrimitiveType.LineStrip, indices.Length, DrawElementsType.UnsignedInt, 0);
+    }
+
+    ~Display()
+    {
+        GL.DeleteBuffer(VertexBufferObject);
+        GL.DeleteBuffer(VertexArrayObject);
+        GL.DeleteBuffer(ElementBufferObject);
+    }
+
+
+
+}
+
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using System;
+using System.Runtime.CompilerServices;
+
+public class Asteroid : Entity
+{
+    
+
+
+    public Asteroid(int chunks) : base(genVertices(chunks), genIndices(chunks))
+    {
+
+
+        scale = 2.0f;
+        orientation = 0;
+
+
+    }
+
+    private static float[] genVertices(int chunks)
+    {
+        float[] tempIndices = new float[(chunks + 1) * 3];
+
+
+        for (int i = 0; i < chunks; i ++)
+        {
+            float rad = genMod(.5f) * .3f;
+
+
+            double angle = 2 * Math.PI * i / chunks;
+            angle *= genMod(0.05f);
+            int index = (i) * 3; // (i + 1) with center
+
+            tempIndices[index] = rad * (float)Math.Cos(angle);
+            tempIndices[index + 1] = rad * (float)Math.Sin(angle);
+            tempIndices[index + 2] = 0.0f;
+        }
+
+        return tempIndices;
+
+    }
+
+            // Generates a random float 1 +- range
+    public static float genMod(float range)
+    {
+
+        Random random = new Random();
+        double modifier = random.NextDouble() * range * 2 - range;
+        return (float)modifier + 1;
+    } 
+    
+
+    private static int[] genIndices(int chunks)
+    {
+        int[] tempIndices = new int[chunks + 1];
+
+        // for (int i = 0; i < chunks * 3; i += 3)
+        // {
+        //     tempIndices[i] = 0;
+        //     tempIndices[i+1] = currentVert;
+        //     currentVert += 1;
+        //     if (currentVert == chunks + 1) currentVert = 1;
+        //     tempIndices[i+2] = currentVert;
+
+        // }
+
+        for (int i = 0; i < chunks; i++)
+        {
+            tempIndices[i] = i;
+
+        }
+
+        tempIndices[chunks] = 0;
+
+
+
+
+        return tempIndices;
+
+
+    }
+
+}
+

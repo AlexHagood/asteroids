@@ -5,18 +5,17 @@ public class Ship : Entity
 {
     public Ship() : base(new float[]
         {
-            0.0f, -0.3f, 0.0f,
-            0.4f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f,
-            -0.4f,  -0.5f, 0.0f
+            -0.0f, -0.03f, -0.0f,
+            0.04f, -0.05f, -0.0f,
+            -0.0f, 0.05f, -0.0f,
+            -0.04f, -0.05f, -0.0f
         },
         new int[]
         {
-            0, 1, 2,
-            3, 0
+            0, 1, 2, 3, 0
         })
     {
-        scale = .1f;
+        
     }
 
     public void control(KeyboardState keyboardState, float dT){

@@ -12,7 +12,7 @@ public class Asteroid : Entity
     {
 
 
-        scale = 2.0f;
+        scale = .3f;
         orientation = 0;
 
 
@@ -21,10 +21,6 @@ public class Asteroid : Entity
     private static float[] genVertices(int chunks)
     {
         float[] tempIndices = new float[(chunks + 1) * 3];
-        //Establish center point
-        // tempIndices[0] = 0.0f;
-        // tempIndices[1] = 0.0f;
-        // tempIndices[2] = 0.0f;
 
 
         for (int i = 0; i < chunks; i ++)
@@ -57,8 +53,10 @@ public class Asteroid : Entity
 
     private static int[] genIndices(int chunks)
     {
-        int[] tempIndices = new int[chunks * 3];
-        int currentVert = 1;
+        Console.WriteLine("chunks");
+
+        Console.WriteLine(chunks);
+        int[] tempIndices = new int[chunks + 1];
 
         // for (int i = 0; i < chunks * 3; i += 3)
         // {
@@ -73,14 +71,10 @@ public class Asteroid : Entity
         for (int i = 0; i < chunks; i++)
         {
             tempIndices[i] = i;
+
         }
 
-        //tempIndices[chunks - 1] = 1;
-
-        Console.WriteLine(tempIndices);
-
-
-
+        tempIndices[chunks] = 0;
 
 
         return tempIndices;

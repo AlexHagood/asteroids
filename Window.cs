@@ -26,8 +26,12 @@ namespace asteroids
 
         private Stopwatch timer = new Stopwatch();
 
+        DebugLine test;
+        DebugLine test2;
+        DebugLine test3;
 
 
+        Number fps;
 
         protected override void OnLoad()
         {
@@ -35,7 +39,21 @@ namespace asteroids
 
             scene = new List<Entity>();
 
-            shader = new Shader("./shaders/polygon/shader.vert", "./shaders/polygon/shader.frag");
+            globalShader.Initialize("./shaders/polygon/shader.vert", "./shaders/polygon/shader.frag");
+
+            shader = globalShader.GShader;
+
+
+
+
+            fps = new Number(1234567, shader);
+
+            test = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
+            test2 = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
+            test3 = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
+
+
+            
 
 
 
@@ -54,6 +72,14 @@ namespace asteroids
 
 
             scene.Add(new Asteroid(10));
+            scene.Add(new Asteroid(10));
+            scene.Add(new Asteroid(10));
+
+            scene[3].speed = new Vector2(.00001f, .00003f);
+            scene[4].speed = new Vector2(-.0001f, .0001f);
+            scene[5].speed = new Vector2(.0003f, -.0001f);
+
+
 
             foreach (Entity ent in scene)
             {
@@ -108,7 +134,7 @@ namespace asteroids
 
 
         private Shader shader;
-
+        int i = 0;
         protected override void OnRenderFrame(FrameEventArgs e)
         {
 
@@ -120,17 +146,41 @@ namespace asteroids
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
+            i++;
+            if (i > 1000)
+            {
+                i = 0;
+                fps.setVal((int) (1.0f / dT));
+            }
+
+            fps.draw();
+
             scene[0].orientation += .01f;
             scene[1].orientation -= .01f;
 
+            test.p1 = player.pos;
+            test2.p1 = player.pos;
+            test3.p1 = player.pos;
+            test.p2 = scene[3].pos;
+            test2.p2 = scene[4].pos;
+            test3.p2 = scene[5].pos;
+            test.draw();
+            test2.draw();
+            test3.draw();
+            
 
-            foreach (Entity ent in scene){
+            foreach (Entity ent in scene)
+            {
+                ent.calcMove();
                 
                 if (Math.Abs(ent.pos.X) > 1f) ent.pos.X = Math.Sign(ent.pos.X) * -1;
                 if (Math.Abs(ent.pos.Y) > 1f) ent.pos.Y = Math.Sign(ent.pos.Y) * -1;
 
-                ent.draw(shader);
+                ent.draw();
             }
+
+
+
 
 
             

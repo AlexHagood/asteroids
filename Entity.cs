@@ -14,7 +14,7 @@ public abstract class Entity()
 
     public Entity(float[] inVertices, int[] inIndices) : this()
     {
-        scale = .1f;
+        scale = 1f;
         display = new Display(inVertices, inIndices);
     }
 
@@ -27,7 +27,7 @@ public abstract class Entity()
     public Vector2 accel; 
 
 
-    public float aSpeed = .00001f;
+    public float aSpeed = .00005f;
 
 
 
@@ -39,14 +39,23 @@ public abstract class Entity()
     private int VertexArrayObject;
     private int ElementBufferObject;
 
+    public void calcMove()
+    {
+            speed.X += accel.X;
+            speed.Y += accel.Y;
 
-    public void draw(Shader shader)
+            pos.X += speed.X;
+            pos.Y += speed.Y;
+    }
+
+
+    public void draw()
     {
         Matrix4 orientMatrix = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(orientation));
         Matrix4 translateMatrix = Matrix4.CreateTranslation(pos.X, pos.Y, 0f);
         Matrix4 scaleMatrix = Matrix4.CreateScale(scale);
         Matrix4 trans = scaleMatrix * orientMatrix * translateMatrix;
-        display.draw(trans, shader);
+        display.draw(trans);
     }
     
 }
