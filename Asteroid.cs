@@ -12,7 +12,7 @@ public class Asteroid : Entity
     {
 
 
-        scale = .5f;
+        scale = 2.0f;
         orientation = 0;
 
 

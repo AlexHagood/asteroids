@@ -55,6 +55,11 @@ namespace asteroids
 
             scene.Add(new Asteroid(10));
 
+            foreach (Entity ent in scene)
+            {
+                ent.display.shader = shader;
+            }
+
 
             player = (Ship)scene[2];
 
