@@ -14,13 +14,13 @@ public class Number{
 
         indices = new int[10][];
 
-        indices[0] = new int[] {0,1,1,5,5,4,4,0,0,1};
+        indices[0] = new int[] {0,1,1,5,5,4,4,0,4,1};
         indices[1] = new int[] {5,1};
         indices[2] = new int[] {0,1,1, 3,3, 2,2, 4,4, 5};
         indices[3] = new int[] {0,1,2,3,4,5,1,5};
         indices[4] = new int[] {5,1,1,3,3,2,2,0};
         indices[5] = new int[] {1,0,0,2,2,3,3,5,5,4};
-        indices[6] = new int[] {1,5,5,4,4,2,2,3};
+        indices[6] = new int[] {0,4,5,4,4,2,2,3,3,5};
         indices[7] = new int[] {5,1,1,0};
         indices[8] = new int[] {0,4,1,5,0,1,2,3,4,5};
         indices[9] = new int[] {3,2,2,0,0,1,1,5};
