@@ -14,9 +14,11 @@ public class Asteroid : Entity
 
         scale = .3f;
         orientation = 0;
-
-
     }
+
+
+
+
 
     private static float[] genVertices(int verticeCount)
     {

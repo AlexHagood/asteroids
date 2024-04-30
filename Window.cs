@@ -9,6 +9,7 @@ using System.Diagnostics;
 
 
 
+
 namespace asteroids
 {
     // This is where all OpenGL code will be written.
@@ -30,6 +31,9 @@ namespace asteroids
         DebugLine test2;
         DebugLine test3;
 
+        int xres = 1600;
+        int yres = 1200;
+        Display dotDebug;
 
         Number fps;
 
@@ -38,6 +42,7 @@ namespace asteroids
             base.OnLoad();
 
             scene = new List<Entity>();
+            asteroids = new List<Asteroid>();
 
             globalShader.Initialize("./shaders/polygon/shader.vert", "./shaders/polygon/shader.frag");
 
@@ -45,14 +50,13 @@ namespace asteroids
 
 
 
+            dotDebug = new Display([0.0f, 0.0f, 0.0f]);
+            dotDebug.shader = globalShader.GShader;
 
 
 
-            fps = new Number(1234567, shader);
+            fps = new Number(1234567890, shader);
 
-            test = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
-            test2 = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
-            test3 = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
 
 
             
@@ -63,23 +67,35 @@ namespace asteroids
 
             scene.Add(new Ship());
             scene[0].pos.X = .25f;
-
             scene.Add(new Ship());
             scene[1].pos.X = -.25f;
-
-
-
             scene.Add(new Ship());
             scene[2].pos.Y = .35f;
 
 
-            scene.Add(new Asteroid(10));
-            scene.Add(new Asteroid(10));
-            scene.Add(new Asteroid(10));
+            asteroids.Add(new Asteroid(10));
+            asteroids.Add(new Asteroid(10));
+            asteroids.Add(new Asteroid(10));
 
-            scene[3].speed = new Vector2(.00001f, .00003f);
-            scene[4].speed = new Vector2(-.0001f, .0001f);
-            scene[5].speed = new Vector2(.0003f, -.0001f);
+
+            scene.Add(asteroids[0]);
+            scene.Add(asteroids[1]);
+            scene.Add(asteroids[2]);
+
+
+            scene[3].speed = new Vector2(.01f, .03f);
+            scene[4].speed = new Vector2(-.01f, .1f);
+            scene[5].speed = new Vector2(.1f, -.01f);
+
+
+            tests = new List<DebugLine>();
+            tests.Add(new DebugLine(0.0f, 0.0f, 0.0f, 0.0f));
+            tests.Add(new DebugLine(0.0f, 0.0f, 0.0f, 0.0f));
+            tests.Add(new DebugLine(0.0f, 0.0f, 0.0f, 0.0f));
+            tests.Add(new DebugLine(-1.0f, 1.0f, 1.0f, -1.0f));
+
+
+
 
 
 
@@ -105,6 +121,12 @@ namespace asteroids
 
 
         List<Entity> scene;
+        List<Asteroid> asteroids;
+        List<DebugLine> tests;
+
+
+
+
         Ship player;
 
         double dT;
@@ -160,20 +182,54 @@ namespace asteroids
             scene[0].orientation += .01f;
             scene[1].orientation -= .01f;
 
-            test.p1 = player.pos;
-            test2.p1 = player.pos;
-            test3.p1 = player.pos;
-            test.p2 = scene[3].pos;
-            test2.p2 = scene[4].pos;
-            test3.p2 = scene[5].pos;
-            test.draw();
-            test2.draw();
-            test3.draw();
+
+            for (int i = 0; i < 3; i++)
+            {
+                tests[i].p1 = player.pos;
+                tests[i].p2 = asteroids[i].pos;
+            }
+
+
+            player.calcPixelVertices();
+
+            List<Vector3> dots = new List<Vector3>();
+            foreach (Asteroid ast in asteroids)
+            {
+                if (player.checkCollision(ast)){
+                    for (int i = 2; i < ast.display.vertices.Length; i += 3)
+                    {
+                        ast.display.vertices[i] = 1f;
+                        ast.display.buildBuffer();
+                    }
+                }
+                else{
+                    for (int i = 2; i < ast.display.vertices.Length; i += 3)
+                    {
+                        ast.display.vertices[i] = 0f;
+                        ast.display.buildBuffer();
+                    }
+
+                }
+            }
+
+            //dotDebug.updateBuffer(util.vecs2Floats(dots), Display.genIndices(dots.Count));
+            //dotDebug.drawLine(Matrix4.Identity);
+
+
+
+
+
+
+            foreach(DebugLine line in tests)
+            {
+                line.draw();
+            }
+
             
 
             foreach (Entity ent in scene)
             {
-                ent.calcMove();
+                ent.calcMove(dT);
                 
                 if (Math.Abs(ent.pos.X) > 1f) ent.pos.X = Math.Sign(ent.pos.X) * -1;
                 if (Math.Abs(ent.pos.Y) > 1f) ent.pos.Y = Math.Sign(ent.pos.Y) * -1;
