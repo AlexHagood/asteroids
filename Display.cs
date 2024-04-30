@@ -1,5 +1,3 @@
-
-using System.Numerics;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 
@@ -21,6 +19,18 @@ public class Display {
         buildBuffer();
     }
 
+    public Display(float[] inVertices){
+        vertices = inVertices;
+        indices = genIndices(inVertices.Length);
+        buildBuffer();
+    }
+
+    public Display(List<Vector3> inVertices){
+        vertices = vecs2Floats(inVertices);
+        indices = genIndices(inVertices.Count);
+        buildBuffer();
+    }
+
     public void updateBuffer(float[] inVertices, int[] inIndices)
     {
         vertices = inVertices;
@@ -28,6 +38,38 @@ public class Display {
         buildBuffer();
     }
 
+    private float[] vecs2Floats(List<Vector3> vertices)
+    {
+        float[] converted = new float[vertices.Count * 3];
+        int i = 0;
+        foreach (Vector3 vec in vertices)
+        {
+            converted[i] = vec.X;
+            converted[i + 1] = vec.Y;
+            converted[i + 2] = vec.Z;
+            i += 3;
+        }
+
+        return converted;
+    }
+
+
+    public static int[] genIndices(int verticeCount)
+    {
+        Console.WriteLine("verticeCount");
+
+        Console.WriteLine(verticeCount);
+        int[] tempIndices = new int[verticeCount + 1];
+        for (int i = 0; i < verticeCount; i++)
+        {
+            tempIndices[i] = i;
+
+        }
+        tempIndices[verticeCount] = 0;
+        return tempIndices;
+
+
+    }
 
 
 

@@ -3,20 +3,18 @@ using OpenTK.Mathematics;
 
 public class Ship : Entity
 {
-    public Ship() : base(new float[]
-        {
-            -0.0f, -0.03f, -0.0f,
-            0.04f, -0.05f, -0.0f,
-            -0.0f, 0.05f, -0.0f,
-            -0.04f, -0.05f, -0.0f
-        },
-        new int[]
-        {
-            0, 1, 2, 3, 0
-        })
-    {
-        
-    }
+
+
+
+    public Ship() : base(new List<Vector3>
+            {
+            new Vector3(-0.0f, -0.03f, -0.0f),
+            new Vector3(0.04f, -0.05f, -0.0f),
+            new Vector3(-0.0f, 0.05f, -0.0f),
+            new Vector3(-0.04f, -0.05f, -0.0f),
+            })
+    {}
+
 
     public void control(KeyboardState keyboardState, float dT){
 
@@ -44,10 +42,6 @@ public class Ship : Entity
                 accel.X += .5f *dT * -speed.X;
                 accel.Y += .5f *dT* -speed.Y;
             }
-            speed.X += accel.X;
-            speed.Y += accel.Y;
-
-            pos.X += speed.X;
-            pos.Y += speed.Y;
+            calcMove();
     }
 }

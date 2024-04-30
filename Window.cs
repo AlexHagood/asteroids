@@ -46,6 +46,8 @@ namespace asteroids
 
 
 
+
+
             fps = new Number(1234567, shader);
 
             test = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);

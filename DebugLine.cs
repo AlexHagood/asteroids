@@ -45,6 +45,11 @@ public class DebugLine{
 
     }
 
+// return to this later for optimization maybe.
+
+
+
+
     public void draw()
     {
         display.draw(genTrans());

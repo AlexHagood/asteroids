@@ -18,6 +18,12 @@ public abstract class Entity()
         display = new Display(inVertices, inIndices);
     }
 
+    public Entity(List<Vector3> vertices) : this()
+    {
+        scale = 1f;
+        display = new Display(vertices);
+    }
+
 
 
 
@@ -33,11 +39,6 @@ public abstract class Entity()
 
     // in radians
     public float orientation;
-
-        // References to our buffers
-    private int VertexBufferObject;
-    private int VertexArrayObject;
-    private int ElementBufferObject;
 
     public void calcMove()
     {
