@@ -19,7 +19,7 @@ class Program
 
             var nativeWindowSettings = new NativeWindowSettings()
             {
-                ClientSize = new Vector2i(800, 600),
+                ClientSize = new Vector2i(1600, 1200),
                 Title = "Asteroids 2",
             };
 

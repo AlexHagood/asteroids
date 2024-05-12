@@ -41,12 +41,9 @@ public class DebugLine{
         return trans;
         
 
-
-
     }
 
 // return to this later for optimization maybe.
-
 
 
 

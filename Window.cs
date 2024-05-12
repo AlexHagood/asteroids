@@ -9,6 +9,7 @@ using System.Diagnostics;
 
 
 
+
 namespace asteroids
 {
     // This is where all OpenGL code will be written.
@@ -30,6 +31,9 @@ namespace asteroids
         DebugLine test2;
         DebugLine test3;
 
+        int xres = 1600;
+        int yres = 1200;
+        Display dotDebug;
 
         Number fps;
 
@@ -38,6 +42,7 @@ namespace asteroids
             base.OnLoad();
 
             scene = new List<Entity>();
+            asteroids = new List<Asteroid>();
 
             globalShader.Initialize("./shaders/polygon/shader.vert", "./shaders/polygon/shader.frag");
 
@@ -45,17 +50,16 @@ namespace asteroids
 
 
 
+            dotDebug = new Display([0.0f, 0.0f, 0.0f]);
+            dotDebug.shader = globalShader.GShader;
 
 
 
-            fps = new Number(1234567, shader);
-
-            test = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
-            test2 = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
-            test3 = new DebugLine(0.0f, 0.0f, 0.0f, 0.0f);
+            fps = new Number(1234567890, shader);
 
 
-            
+
+
 
 
 
@@ -63,23 +67,35 @@ namespace asteroids
 
             scene.Add(new Ship());
             scene[0].pos.X = .25f;
-
             scene.Add(new Ship());
             scene[1].pos.X = -.25f;
-
-
-
             scene.Add(new Ship());
             scene[2].pos.Y = .35f;
 
 
-            scene.Add(new Asteroid(10));
-            scene.Add(new Asteroid(10));
-            scene.Add(new Asteroid(10));
+            asteroids.Add(new Asteroid(10));
+            asteroids.Add(new Asteroid(10));
+            asteroids.Add(new Asteroid(10));
 
-            scene[3].speed = new Vector2(.00001f, .00003f);
-            scene[4].speed = new Vector2(-.0001f, .0001f);
-            scene[5].speed = new Vector2(.0003f, -.0001f);
+
+            scene.Add(asteroids[0]);
+            scene.Add(asteroids[1]);
+            scene.Add(asteroids[2]);
+
+
+            scene[3].speed = new Vector2(.01f, .03f);
+            scene[4].speed = new Vector2(-.01f, .1f);
+            scene[5].speed = new Vector2(.1f, -.01f);
+
+
+            tests = new List<DebugLine>();
+            tests.Add(new DebugLine(0.0f, 0.0f, 0.0f, 0.0f));
+            tests.Add(new DebugLine(0.0f, 0.0f, 0.0f, 0.0f));
+            tests.Add(new DebugLine(0.0f, 0.0f, 0.0f, 0.0f));
+            tests.Add(new DebugLine(-1.0f, 1.0f, 1.0f, -1.0f));
+
+
+
 
 
 
@@ -105,6 +121,12 @@ namespace asteroids
 
 
         List<Entity> scene;
+        List<Asteroid> asteroids;
+        List<DebugLine> tests;
+
+
+
+
         Ship player;
 
         double dT;
@@ -143,7 +165,7 @@ namespace asteroids
             dT = timer.Elapsed.TotalSeconds;
             timer.Restart();
             dT = Math.Min(dT, 0.1);
-            
+
             base.OnRenderFrame(e);
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
@@ -152,7 +174,7 @@ namespace asteroids
             if (i > 1000)
             {
                 i = 0;
-                fps.setVal((int) (1.0f / dT));
+                fps.setVal((int)(1.0f / dT));
             }
 
             fps.draw();
@@ -160,21 +182,82 @@ namespace asteroids
             scene[0].orientation += .01f;
             scene[1].orientation -= .01f;
 
-            test.p1 = player.pos;
-            test2.p1 = player.pos;
-            test3.p1 = player.pos;
-            test.p2 = scene[3].pos;
-            test2.p2 = scene[4].pos;
-            test3.p2 = scene[5].pos;
-            test.draw();
-            test2.draw();
-            test3.draw();
-            
+            player.calcPixelVertices();
+
+
+            Console.WriteLine("adding asteroids");
+
+            List<Asteroid> newChildren = new List<Asteroid>();
+            foreach (Asteroid ast in asteroids)
+            {
+                if (ast.size == 0)
+                {
+                    newChildren.AddRange(ast.split());
+                }
+            }
+
+
+
+            asteroids.AddRange(newChildren);
+            scene.AddRange(newChildren);
+
+
+            Console.WriteLine("culling asteroids");
+
+            scene.RemoveAll(entity => entity is Asteroid && ((Asteroid)entity).size == 0);
+            asteroids.RemoveAll(asteroid => asteroid.size == 0);
+
+            Console.WriteLine("culling bullets");
+
+            player.cullBullets();
+
+
+
+
+
+            Console.WriteLine("checking collisions");
+            foreach (Asteroid ast in asteroids)
+            {
+
+
+                if (player.checkCollision(ast))
+                {
+                    for (int i = 2; i < player.display.vertices.Length; i += 3)
+                    {
+                        player.display.vertices[i] = 1f;
+                    }
+                }
+
+                foreach (Bullet bullet in player.bullets)
+                {
+                    if (bullet.active && bullet.checkCollision(ast))
+                    {
+                        bullet.active = false;
+                        ast.size = 0;
+                    }
+                }
+            }
+
+
+
+            player.display.buildBuffer();
+
+
+
+
+
+
+            foreach (DebugLine line in tests)
+            {
+                line.draw();
+            }
+            player.drawBullets((float)dT);
+
 
             foreach (Entity ent in scene)
             {
-                ent.calcMove();
-                
+                ent.calcMove(dT);
+
                 if (Math.Abs(ent.pos.X) > 1f) ent.pos.X = Math.Sign(ent.pos.X) * -1;
                 if (Math.Abs(ent.pos.Y) > 1f) ent.pos.Y = Math.Sign(ent.pos.Y) * -1;
 
@@ -185,16 +268,16 @@ namespace asteroids
 
 
 
-            
+
 
 
             SwapBuffers();
 
-            
+
         }
 
     }
-    
+
 }
 
 

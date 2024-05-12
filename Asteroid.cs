@@ -2,6 +2,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 public class Asteroid : Entity
 {
@@ -14,7 +15,44 @@ public class Asteroid : Entity
 
         scale = .3f;
         orientation = 0;
+        size = 2;
+    }
 
+
+    public int size;
+    
+
+
+
+
+
+    public Asteroid[] split()
+    {
+        Asteroid c1 = new Asteroid(10);
+        Asteroid c2 = new Asteroid(10);
+
+        c1.scale = scale/2;
+        c2.scale = scale/2;
+
+        c1.pos = pos;
+        c2.pos = pos;
+
+        c1.size = size - 1;
+        c2.size = size - 1;
+
+        Console.WriteLine(c1.size);
+
+        c1.display.shader = display.shader;
+        c2.display.shader = display.shader;
+
+        c1.speed = speed;
+        c2.speed = speed;
+
+        c2.speed.X *= -1;
+
+        size *= -1;
+
+        return new Asteroid[] {c1, c2};
 
     }
 

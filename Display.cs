@@ -7,9 +7,9 @@ public class Display {
     private int VertexArrayObject;
     private int ElementBufferObject;
 
-    private float[] vertices;
+    public float[] vertices;
 
-    private int[] indices;
+    public int[] indices;
 
     public Shader shader;
 
@@ -26,7 +26,7 @@ public class Display {
     }
 
     public Display(List<Vector3> inVertices){
-        vertices = vecs2Floats(inVertices);
+        vertices = util.vecs2Floats(inVertices);
         indices = genIndices(inVertices.Count);
         buildBuffer();
     }
@@ -38,27 +38,11 @@ public class Display {
         buildBuffer();
     }
 
-    private float[] vecs2Floats(List<Vector3> vertices)
-    {
-        float[] converted = new float[vertices.Count * 3];
-        int i = 0;
-        foreach (Vector3 vec in vertices)
-        {
-            converted[i] = vec.X;
-            converted[i + 1] = vec.Y;
-            converted[i + 2] = vec.Z;
-            i += 3;
-        }
 
-        return converted;
-    }
 
 
     public static int[] genIndices(int verticeCount)
     {
-        Console.WriteLine("verticeCount");
-
-        Console.WriteLine(verticeCount);
         int[] tempIndices = new int[verticeCount + 1];
         for (int i = 0; i < verticeCount; i++)
         {
@@ -116,6 +100,19 @@ public class Display {
         GL.UniformMatrix4(transLoc, false, ref trans);
         GL.DrawElements(PrimitiveType.Lines, indices.Length, DrawElementsType.UnsignedInt, 0);
     }
+    public void drawPoints(Matrix4 trans)
+    {
+        GL.BindVertexArray(VertexArrayObject);
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+
+        shader.Use();
+
+        int transLoc = GL.GetUniformLocation(shader.getHandle(), "trans");
+        
+        GL.UniformMatrix4(transLoc, false, ref trans);
+        GL.DrawElements(PrimitiveType.Points, indices.Length, DrawElementsType.UnsignedInt, 0);
+    }
+
 
     ~Display()
     {
