@@ -62,9 +62,6 @@ namespace asteroids
 
 
 
-
-
-
             scene.Add(new Ship());
             scene[0].pos.X = .25f;
             scene.Add(new Ship());
@@ -247,17 +244,13 @@ namespace asteroids
 
 
 
-            foreach (DebugLine line in tests)
-            {
-                line.draw();
-            }
             player.drawBullets((float)dT);
+
 
 
             foreach (Entity ent in scene)
             {
                 ent.calcMove(dT);
-
                 if (Math.Abs(ent.pos.X) > 1f) ent.pos.X = Math.Sign(ent.pos.X) * -1;
                 if (Math.Abs(ent.pos.Y) > 1f) ent.pos.Y = Math.Sign(ent.pos.Y) * -1;
 

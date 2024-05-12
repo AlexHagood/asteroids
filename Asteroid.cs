@@ -56,6 +56,10 @@ public class Asteroid : Entity
 
     }
 
+
+
+
+
     private static float[] genVertices(int verticeCount)
     {
         float[] tempIndices = new float[(verticeCount + 1) * 3];
